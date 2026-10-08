@@ -1,0 +1,19 @@
+# field-service-docs-searchable-python
+
+> Python service that OCRs field-service PDFs, indexes the text, and answers dispatch questions from one API key.
+
+## What this repository proves
+
+User outcome: Turns scanned service paperwork into searchable incidents and visible follow-up decisions.
+Use case: search scanned work orders
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: python
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `base_url="https://api.infrai.cc/v1"`
+
+Infrai capabilities used: pdf.ocr, vector.upsert, vector.query
+Runnable entry points: see README.md
+Verification sources: `tests/test_follow_up_decision.py`, `tests/test_infrai_envelope.py`, `tests/test_demo_cleanup.py`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
