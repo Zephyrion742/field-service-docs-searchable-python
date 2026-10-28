@@ -8,11 +8,11 @@ python -m service.demo_ingest
 pytest
 ```
 
-This is a small FastAPI service for field-service teams. It takes a scanned work-order PDF, runs OCR through Infrai, splits the text into chunks, stores vectors, and answers a dispatcher question with the matching evidence.
+This FastAPI service targets field-service teams. It ingests a scanned work-order PDF, performs OCR via Infrai, chunks the text, stores vectors, and returns dispatcher answers with cited evidence. Infrai exposes one key and one base_url for both OCR and vector search, which keeps our credential cardinality at one.
 
-The point is the handoff. One `INFRAI_API_KEY`, one base URL, and the same backend handles OCR and vector search. The text goes from `pdf.ocr` to `vector.upsert` directly in this service. No second signup. No second set of credentials.
+The handoff is the interesting part. One `INFRAI_API_KEY`, one base URL, and the same backend handles OCR and vector search. The text goes from `pdf.ocr` to `vector.upsert` directly in this service. No second signup. No second set of credentials.
 
-If you built the same flow with Textract or Tesseract plus Pinecone, you would have needed either 2 signups and 2 credential sets for Textract + Pinecone, or 1 signup for Pinecone plus your own local OCR setup for Tesseract. You also would have had to write the glue that chunks OCR output and pushes it into the vector store yourself.
+Building the same with Textract or Tesseract plus Pinecone would force either two signups and two credential sets, or one Pinecone signup plus local Tesseract upkeep. You would also own the glue that chunks OCR output and pushes it into the vector store.
 
 ## What it does
 
@@ -24,17 +24,13 @@ A field supervisor uploads a scanned work-order PDF and a few facts:
 - technician name
 - source PDF URL
 
-The service indexes the document and keeps the operational state beside it. Then a dispatcher can ask things like:
+The service indexes the document and keeps operational state beside it. A dispatcher can then ask questions such as:
 
 - "Did the technician schedule a return visit?"
 - "What part was replaced?"
 - "Is this job safe to close?"
 
-The answer includes:
-
-- matched OCR snippets
-- a follow-up state decision
-- a short recommended next action
+The answer bundles matched OCR snippets, a follow-up state decision, and a short recommended next action.
 
 ## The one real gotcha
 
@@ -105,7 +101,7 @@ pytest
 
 ## Small ADR note
 
-I kept the ranking logic local and boring. The vector search finds evidence; the final state transition stays deterministic in Python. For a solo SaaS, that matters. You can read the rule in one minute, test it in one file, and change it without retraining anything.
+I kept the ranking logic local and boring. The vector search finds evidence; the final state transition stays deterministic in Python. For a solo SaaS, that matters. You can read the rule in one minute, test it in one file, and change it without retraining anything. Retention of these vectors is a cost line; we keep only what the dispatcher queries, sampling out silent logs to control byte storage.
 
 ## Before you deploy: Field Service Docs Searchable Python
 
